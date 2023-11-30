@@ -30,6 +30,32 @@ async function run() {
     const PaymentCollection = client.db("EmployeeMangement").collection("payment")
     const workCollection = client.db("EmployeeMangement").collection("Worksheet")
 
+     // token
+    //  const verifyToken = (req,res,next)=>{
+      
+    //   if(!req.headers.authorization)
+    //   {
+    //     return res.status(403).send({message : 'unauthorization'})
+    //   }
+    //   const token = req.headers.authorization.split(' ')[1];
+    //   console.log(token);
+      
+    //   console.log(token);
+    //   jwt.verify(token, process.env.ACCES_TOKEN, function(err, decoded) {
+    //     if(err)
+    //     {
+    //       return res.status(403).send({message : 'unauthorization'})
+    //     }
+    //     req.decoded = decoded
+    //     next()
+    //   });
+     
+    // }
+
+
+
+
+
     app.post('/users',async(req,res)=>{
       const body = req.body
       console.log(body)
@@ -67,6 +93,12 @@ async function run() {
     })
     app.get('/worksheet',async(req,res)=>{
       const result = await workCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/worksheet/:email',async(req,res)=>{
+      const email = req.params.email
+      const query = {email:email}
+      const result = await workCollection.find(query).toArray()
       res.send(result)
     })
     app.post("/create-payment-intent",async(req,res)=>{
@@ -136,66 +168,48 @@ async function run() {
       console.log(result)
       res.send(result)
     })
-    // token
-    const verifyToken = (req,res,next)=>{
-      
-      if(!req.headers.authorization)
-      {
-        return res.status(403).send({message : 'unauthorization'})
-      }
-      const token = req.headers.authorization.split(' ')[1];
-      
-      console.log(token);
-      jwt.verify(token, process.env.ACCES_TOKEN, function(err, decoded) {
-        if(err)
-        {
-          return res.status(403).send({message : 'unauthorization'})
-        }
-        req.decoded = decoded
-        next()
-      });
-     
-    }
-    const verifyAdmin = async(req,res,next)=>{
-      const email = req.decoded.email;
-      const query = {email:email}
-      const users = await userCollection.findOne(query)
-      const isAdmin = users?.role=="Admin";
-      if(!isAdmin)
-      {
-        return res.status(403).send({message:"forbiden email"})
-      }
-      next()
-    }
-
-    const verifyHR = async(req,res,next)=>{
-      const email = req.decoded.email;
-      const query = {email:email}
-      const users = await userCollection.findOne(query)
-      const isAdmin = users?.role=="HR";
-      if(!isAdmin)
-      {
-        return res.status(403).send({message:"forbiden email"})
-      }
-      next()
-    }
-    const verifyEmployee = async(req,res,next)=>{
-      const email = req.decoded.email;
-      const query = {email:email}
-      const users = await userCollection.findOne(query)
-      const isAdmin = users?.role=="Employee";
-      if(!isAdmin)
-      {
-        return res.status(403).send({message:"forbiden email"})
-      }
-      next()
-    }
+   
     app.post('/jwt',async(req,res)=>{
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCES_TOKEN,
         { expiresIn: '1h' })
         res.send(token)
     })
+    // const verifyAdmin = async(req,res,next)=>{
+    //   const email = req.decoded.email;
+    //   const query = {email:email}
+    //   const users = await userCollection.findOne(query)
+    //   const isAdmin = users?.role=="Admin";
+    //   if(!isAdmin)
+    //   {
+    //     return res.status(403).send({message:"forbiden email"})
+    //   }
+    //   next()
+    // }
+
+    // const verifyHR = async(req,res,next)=>{
+    //   const email = req.decoded.email;
+    //   const query = {email:email}
+    //   const users = await userCollection.findOne(query)
+    //   const isAdmin = users?.role=="HR";
+    //   if(!isAdmin)
+    //   {
+    //     return res.status(403).send({message:"forbiden email"})
+    //   }
+    //   next()
+    // }
+    // const verifyEmployee = async(req,res,next)=>{
+    //   const email = req.decoded.email;
+    //   const query = {email:email}
+    //   const users = await userCollection.findOne(query)
+    //   const isAdmin = users?.role=="Employee";
+    //   if(!isAdmin)
+    //   {
+    //     return res.status(403).send({message:"forbiden email"})
+    //   }
+    //   next()
+    // }
+
 
 
 
