@@ -25,10 +25,11 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const userCollection = client.db("EmployeeMangement").collection("user")
     const PaymentCollection = client.db("EmployeeMangement").collection("payment")
     const workCollection = client.db("EmployeeMangement").collection("Worksheet")
+    const userContact = client.db("EmployeeMangement").collection("contactus")
 
      // token
     //  const verifyToken = (req,res,next)=>{
@@ -93,6 +94,20 @@ async function run() {
     })
     app.get('/worksheet',async(req,res)=>{
       const result = await workCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/worksheets',async(req,res)=>{
+      const count = await workCollection.estimatedDocumentCount()
+      res.send({count})
+    })
+    app.get("/pagination",async(req,res)=>{
+      const page = parseInt(req.query.page)
+      const size = parseInt(req.query.size)
+      console.log(page,size);
+      const result = await workCollection.find()
+      .skip(page*size)
+      .limit(size)
+      .toArray()
       res.send(result)
     })
     app.get('/worksheet/:email',async(req,res)=>{
@@ -174,6 +189,11 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCES_TOKEN,
         { expiresIn: '1h' })
         res.send(token)
+    })
+    app.post('/contact',async(req,res)=>{
+      const body = req.body
+      const result = await userContact.insertOne(body)
+      res.send(result)
     })
     // const verifyAdmin = async(req,res,next)=>{
     //   const email = req.decoded.email;
